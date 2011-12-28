@@ -155,6 +155,7 @@ do_action('wp_dlm_download');
 				if (($d->members || get_option('wp_dlm_global_member_only')=='yes') && (!isset($user_ID) || $user_ID == 0) ) {
 					$url = get_option('wp_dlm_member_only');
 					$url = str_replace('{referrer}',urlencode($_SERVER['REQUEST_URI']),$url);
+					$url = str_replace('{did}',urlencode($d->id),$url);
 					if (!empty($url)) {
 						$url = 'Location: '.$url;
 						header( $url );

@@ -1,5 +1,6 @@
 .download-info .download-button,
-.download-info .more-button {
+.download-info .more-button,
+.download-info .register-button {
 	width: 120px;
 	height: 0;
 	padding-top: 36px;
@@ -7,8 +8,16 @@
 	display: block;
 }
 
+.download-info .register-message {
+	
+}
+
 .download-info .download-button {
 	background: url(downloadbutton.gif) no-repeat top left;
+}
+
+.download-info .register-button {
+	background: url(registerbutton.gif) no-repeat top left;
 }
 
 .download-info .more-button {

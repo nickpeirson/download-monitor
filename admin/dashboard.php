@@ -261,6 +261,59 @@ if ($wp_db_version > 6124) {
 		</tbody></table>
 		<?php
 	}
+
+	function dlm_download_top_weekly_widget() {
+		global $wp_dlm_db,$wpdb,$wp_dlm_db_stats, $wp_dlm_root, $download_taxonomies, $wp_dlm_db_relationships;			
+		$sql = "SELECT dlm.*, IFNULL(SUM(dlm_stats.hits),0) AS hits
+				FROM $wp_dlm_db AS dlm
+				LEFT JOIN $wp_dlm_db_stats AS dlm_stats ON dlm.id = dlm_stats.download_id
+				WHERE (dlm_stats.date > DATE_SUB(DATE(NOW()),INTERVAL 1 WEEK) OR dlm_stats.id IS NULL)
+				GROUP BY dlm.id
+				ORDER BY hits DESC
+				LIMIT 5;";
+		$downloads = $wpdb->get_results( $sql );	
+		echo "<!-- $sql -->";
+		?>
+		<table class="download_chart" style="margin-bottom:0" summary="<?php _e('Most Downloaded (Last 7 days)',"wp-download_monitor"); ?>" cellpadding="0" cellspacing="0">
+			<tbody>
+				<tr>
+					<th scope="col"><span class="auraltext"><?php _e('Day',"wp-download_monitor"); ?></span> </th>
+					<th scope="col"><span class="auraltext"><?php _e('Number of downloads',"wp-download_monitor"); ?></span> </th>
+				</tr>
+				<?php
+					// get stats
+					$first = 'first';						
+					$loop = 1;
+					$size = sizeof($downloads);
+					$last = "";
+					$max = 0;
+					if ($downloads) {
+						foreach ($downloads as $d) {
+							if($max == 0){
+								$max = $d->hits;
+							}
+							$hits = $d->hits;
+							$date = $d->date;
+							$width = ($hits / $max * 90); // Thanks lggemini
+							if ($loop==$size) $last = 'last';
+							$version = '';
+							if ($d->dlversion) $version = 'v'.$d->dlversion;
+							echo '
+							<tr>			
+								<td class="'.$first.'" style="width:25%;">'.$d->title.' '.$version.'</td>
+								<td class="value '.$first.' '.$last.'"><img src="'.$wp_dlm_root.'img/bar.png" alt="" height="16" width="'.$width.'%" />'.$hits.'</td>
+							</tr>
+							';
+							$first = "";
+							$loop++;
+						}
+					} else {
+						echo '<tr><td class="first last" style="border-right:1px solid #e5e5e5" colspan="2">'.__('No stats yet',"wp-download_monitor").'</td></tr>';
+					}
+				?>						
+		</tbody></table>
+		<?php
+	}
 	
 	// Different handling if supported (2.7 and 2.8)
 	//if (function_exists('wp_add_dashboard_widget')) {
@@ -270,6 +323,7 @@ if ($wp_db_version > 6124) {
 			if (current_user_can( 'manage_options' )) {
 				wp_add_dashboard_widget( 'dlm_download_stats_widget', __( 'Download Stats' ), 'dlm_download_stats_widget' );
 				wp_add_dashboard_widget( 'dlm_download_top_widget', __( 'Top 5 Downloads' ), 'dlm_download_top_widget' );
+				wp_add_dashboard_widget( 'dlm_download_top_weekly_widget', __( 'Top 5 Weekly Downloads' ), 'dlm_download_top_weekly_widget' );
 			}
 		}
 		add_action('wp_dashboard_setup', 'dlm_download_stats_widget_setup');

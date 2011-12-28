@@ -619,8 +619,14 @@ if (function_exists('get_downloads')) {
 	        		
 		           	<div class="side-section">
 		        		<p><img src="'.$thumbnail_url.'" class="download-image" alt="'.strip_tags($download->title).'" title="'.strip_tags($download->title).'" width="112" /></p>';
-		        		
-		    if (!isset($download->meta['hide_download_button'])) $page .= '<p><a href="'.do_shortcode('[download id="'.$download->id.'" format="{url}"]').'" class="download-button">'.$dbutton_text.'</a></p>';
+	        $button_class = 'download-button';
+	        if($download->memberonly && !is_user_logged_in()){
+	        	$page .= '<div id="register_message">Please register and log in to<br />download for free.</div>';
+	        	$button_class = 'register-button';
+	        }		
+		    if (!isset($download->meta['hide_download_button'])){
+		    	$page .= '<p><a href="'.do_shortcode('[download id="'.$download->id.'" format="{url}"]').'" class="'.$button_class.'">'.$dbutton_text.'</a></p>';
+		    }
 		       
 		    if (isset($download->meta['post_id']) && is_numeric($download->meta['post_id']))		      		
 		    	$page .= '<p><a href="'.get_permalink($download->meta['post_id']).'" class="more-button">'.$readmore_text.'</a></p>';
